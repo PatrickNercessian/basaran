@@ -73,7 +73,7 @@ pip install accelerate bitsandbytes
 3. Replace `user/repo` with the selected model and run Basaran:
 
 ```bash
-MODEL=user/repo PORT=80 python -m basaran
+MODEL=user/repo NGINX_PORT=80 python -m basaran
 ```
 
 For a complete list of environment variables, see [`__init__.py`](https://github.com/hyperonym/basaran/blob/master/basaran/__init__.py).
@@ -97,7 +97,7 @@ pip install -r requirements.txt
 3. Replace `user/repo` with the selected model and run Basaran:
 
 ```bash
-MODEL=user/repo PORT=80 python -m basaran
+MODEL=user/repo NGINX_PORT=80 python -m basaran
 ```
 
 ### Basic Usage

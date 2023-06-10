@@ -3,6 +3,11 @@ FROM nvcr.io/nvidia/pytorch:22.12-py3
 # Create app directory
 WORKDIR /app
 
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y && \
+    apt-get install -y nginx
+
 # Install app dependencies
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
@@ -20,9 +25,11 @@ ENV PYTHONUNBUFFERED="1"
 ENV BITSANDBYTES_NOWELCOME="1"
 
 # Provide default environment variables
-ENV MODEL="bigscience/bloomz-560m"
+# ENV MODEL="bigscience/bloom-560m"
+ENV MODEL="facebook/opt-125m"
 ENV HOST="0.0.0.0"
-ENV PORT="80"
+ENV NGINX_PORT="80"
+ENV WAITRESS_PORT="7999"
 ENV MODEL_REVISION=""
 ENV MODEL_CACHE_DIR="/models"
 ENV MODEL_LOAD_IN_8BIT="false"
@@ -46,3 +53,4 @@ ENV CUDA_MEMORY_FRACTION="1.0"
 
 # Specify entrypoint and default parameters
 ENTRYPOINT [ "python", "-m", "basaran" ]
+# ENTRYPOINT [ "python", "basaran/testing_docker.py"]

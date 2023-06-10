@@ -15,7 +15,8 @@ def is_true(value):
 # multilingual and requires less than 8GB of memory for inference.
 MODEL = os.getenv("MODEL", "bigscience/bloomz-560m")
 HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", "80"))
+NGINX_PORT = int(os.getenv("NGINX_PORT", "80"))
+WAITRESS_PORT = int(os.getenv("WAITRESS_PORT", "7999"))
 
 # Model-related arguments:
 MODEL_REVISION = os.getenv("MODEL_REVISION", "")

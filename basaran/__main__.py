@@ -4,6 +4,7 @@ Basaran API server.
 import json
 import secrets
 import time
+import subprocess
 
 import waitress
 from flask import Flask, Response, abort, jsonify, render_template, request
@@ -16,7 +17,8 @@ from .model import load_model
 # Configurations from environment variables.
 from . import MODEL
 from . import HOST
-from . import PORT
+from . import NGINX_PORT
+from . import WAITRESS_PORT
 from . import MODEL_REVISION
 from . import MODEL_CACHE_DIR
 from . import MODEL_LOAD_IN_8BIT
@@ -258,16 +260,27 @@ def http_error_handler(error):
 
 def main():
     """Start serving API requests."""
-    print(f"start listening on {HOST}:{PORT}")
-    waitress.serve(
-        app,
-        host=HOST,
-        port=PORT,
-        threads=SERVER_THREADS,
-        ident=SERVER_IDENTITY,
-        connection_limit=SERVER_CONNECTION_LIMIT,
-        channel_timeout=SERVER_CHANNEL_TIMEOUT,
-    )
+    print(f"start listening on {HOST}:{NGINX_PORT}")
+
+    # link the log streams to stdout/err so they will be logged to the container logs
+    subprocess.check_call(['ln', '-sf', '/dev/stdout', '/var/log/nginx/access.log'])
+    subprocess.check_call(['ln', '-sf', '/dev/stderr', '/var/log/nginx/error.log'])
+
+    nginx_process = subprocess.Popen(['nginx', '-c', '/app/nginx.conf'])
+    time.sleep(1)  # Wait for Nginx to start
+    try:
+        waitress.serve(
+            app,
+            host=HOST,
+            port=WAITRESS_PORT,
+            threads=SERVER_THREADS,
+            ident=SERVER_IDENTITY,
+            connection_limit=SERVER_CONNECTION_LIMIT,
+            channel_timeout=SERVER_CHANNEL_TIMEOUT,
+        )
+    finally:
+        nginx_process.terminate()
+        nginx_process.wait()
 
 
 if __name__ == "__main__":
